@@ -30,22 +30,48 @@ public class ConcreteStopwatchModelFacade implements StopwatchModelFacade {
 
     @Override
     public void start() {
+
         stateMachine.actionInit();
     }
 
     @Override
     public void setModelListener(final StopwatchModelListener listener) {
+
         stateMachine.setModelListener(listener);
     }
 
     @Override
     public void onStartStop() {
+
         stateMachine.onStartStop();
     }
 
     @Override
     public void onLapReset() {
+
         stateMachine.onLapReset();
+    }
+
+    @Override
+    public void onResume() {
+        //resume pause
+    }
+
+    @Override
+    public void onPause() {
+
+        clockModel.stop();
+    }
+
+    @Override
+    public void onStop() {
+
+        clockModel.stop();
+    }
+
+    public void onDestroy() {
+        stateMachine.setModelListener(null);
+        clockModel.stop();
     }
 
 }

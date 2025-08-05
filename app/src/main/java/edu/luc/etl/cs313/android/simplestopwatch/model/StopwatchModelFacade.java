@@ -10,4 +10,17 @@ import edu.luc.etl.cs313.android.simplestopwatch.common.StopwatchUIListener;
  *
  * @author laufer
  */
-public interface StopwatchModelFacade extends Startable, StopwatchUIListener, StopwatchModelSource { }
+public interface StopwatchModelFacade extends Startable, StopwatchUIListener, StopwatchModelSource {
+
+    //called when the activity resumes
+    void onResume();
+
+    //called whe the activity is paused
+    void onPause();
+
+    //called when activity is fully stopped
+    void onStop();
+
+    //called when the activity is destroyed
+    void onDestroy();
+}
