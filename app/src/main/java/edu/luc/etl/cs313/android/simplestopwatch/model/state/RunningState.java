@@ -5,6 +5,7 @@ import edu.luc.etl.cs313.android.simplestopwatch.R;
 class RunningState implements StopwatchState {
 
     public RunningState(final StopwatchSMStateView sm) {
+
         this.sm = sm;
     }
 
@@ -13,19 +14,25 @@ class RunningState implements StopwatchState {
     @Override
     public void onStartStop() {
         sm.actionStop();
+        sm.actionReset();
         sm.toStoppedState();
     }
 
     @Override
     public void onLapReset() {
-        sm.actionLap();
-        sm.toLapRunningState();
     }
 
     @Override
     public void onTick() {
-        sm.actionInc();
-        sm.toRunningState();
+        sm.actionDec();
+        if(sm.getTime() == 0){
+            sm.actionStop();
+            sm.actionPlayNotification();
+            sm.toStoppedState();
+        }
+        else{
+        sm.toRunningState();}
+
     }
 
     @Override

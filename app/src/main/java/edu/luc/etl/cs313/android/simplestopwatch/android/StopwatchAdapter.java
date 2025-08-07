@@ -38,7 +38,7 @@ public class StopwatchAdapter extends Activity implements StopwatchModelListener
         // inject dependency on view so this adapter receives UI events
         setContentView(R.layout.activity_main);
         // inject dependency on model into this so model receives UI events
-        this.setModel(new ConcreteStopwatchModelFacade());
+        this.setModel(new ConcreteStopwatchModelFacade(getApplicationContext()));
         // inject dependency on this into model to register for UI updates
         model.setModelListener(this);
     }

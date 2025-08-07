@@ -1,8 +1,16 @@
 package edu.luc.etl.cs313.android.simplestopwatch.model.state;
-
+import android.content.Context;
+import android.media.AudioAttributes;
+import android.media.MediaPlayer;
+import android.media.RingtoneManager;
+import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import edu.luc.etl.cs313.android.simplestopwatch.common.StopwatchModelListener;
 import edu.luc.etl.cs313.android.simplestopwatch.model.clock.ClockModel;
 import edu.luc.etl.cs313.android.simplestopwatch.model.time.TimeModel;
+
+import java.io.IOException;
 
 /**
  * An implementation of the state machine for the stopwatch.
@@ -10,15 +18,18 @@ import edu.luc.etl.cs313.android.simplestopwatch.model.time.TimeModel;
  * @author laufer
  */
 public class DefaultStopwatchStateMachine implements StopwatchStateMachine {
-
-    public DefaultStopwatchStateMachine(final TimeModel timeModel, final ClockModel clockModel) {
+    public int getTime() {
+        return timeModel.getTime();
+    }
+    public DefaultStopwatchStateMachine(final TimeModel timeModel, final ClockModel clockModel, final Context context) {
         this.timeModel = timeModel;
         this.clockModel = clockModel;
+        this.context = context;
     }
-
     private final TimeModel timeModel;
 
     private final ClockModel clockModel;
+    private MediaPlayer alarmPlayer;
 
     /**
      * The internal state of this adapter component. Required for the State pattern.
@@ -36,7 +47,9 @@ public class DefaultStopwatchStateMachine implements StopwatchStateMachine {
     public void setModelListener(final StopwatchModelListener listener) {
         this.listener = listener;
     }
-
+    public void setRuntime(int time) {
+        timeModel.setRuntime(time);
+    }
     // forward event uiUpdateListener methods to the current state
     // these must be synchronized because events can come from the
     // UI thread or the timer thread
@@ -44,15 +57,47 @@ public class DefaultStopwatchStateMachine implements StopwatchStateMachine {
     @Override public synchronized void onLapReset()  { state.onLapReset(); }
     @Override public synchronized void onTick()      { state.onTick(); }
 
-    @Override public void updateUIRuntime() { listener.onTimeUpdate(timeModel.getRuntime()); }
-    @Override public void updateUILaptime() { listener.onTimeUpdate(timeModel.getLaptime()); }
+    @Override public void updateUIRuntime() { listener.onTimeUpdate(timeModel.getTime()); }
+
+    @Override
+    public void updateUILaptime() {
+
+    }
+
+    @Override
+    public void actionPlayNotification() {
+        try {
+            final Uri defaultRingtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+            MediaPlayer mp = new MediaPlayer();
+            mp.setAudioAttributes(new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build());
+            mp.setDataSource(context, defaultRingtoneUri);
+            mp.setOnCompletionListener(MediaPlayer::release); // auto-release
+            mp.prepare();
+            mp.start();
+        } catch (IOException e) {
+            throw new RuntimeException("Error playing notification", e);
+        }
+    }
+
+    @Override
+    public void actionStopNotification() {
+    if(alarmPlayer != null) {
+        alarmPlayer.release();
+            alarmPlayer = null;
+        }
+    }
+
+
 
     // known states
     private final StopwatchState STOPPED     = new StoppedState(this);
     private final StopwatchState RUNNING     = new RunningState(this);
     private final StopwatchState LAP_RUNNING = new LapRunningState(this);
     private final StopwatchState LAP_STOPPED = new LapStoppedState(this);
-
+    private final Context context;
     // transitions
     @Override public void toRunningState()    { setState(RUNNING); }
     @Override public void toStoppedState()    { setState(STOPPED); }
@@ -60,11 +105,35 @@ public class DefaultStopwatchStateMachine implements StopwatchStateMachine {
     @Override public void toLapStoppedState() { setState(LAP_STOPPED); }
 
     // actions
+    public void actionDec() {
+        timeModel.decTime();
+        actionUpdateView();
+    }
     @Override public void actionInit()       { toStoppedState(); actionReset(); }
     @Override public void actionReset()      { timeModel.resetRuntime(); actionUpdateView(); }
     @Override public void actionStart()      { clockModel.start(); }
     @Override public void actionStop()       { clockModel.stop(); }
-    @Override public void actionLap()        { timeModel.setLaptime(); }
-    @Override public void actionInc()        { timeModel.incRuntime(); actionUpdateView(); }
+
+    @Override
+    public void actionLap() {
+
+    }
+
+    @Override public void actionInc()        { timeModel.setTime(timeModel.getTime() + 1);}
     @Override public void actionUpdateView() { state.updateView(); }
+private final Handler handler = new Handler(Looper.getMainLooper());
+    private final Runnable delayRunnable = new Runnable() {
+        public void run() {
+            if (getTime() >0) {
+                actionPlayNotification();
+                toRunningState();
+                actionStart();
+            }
+        }
+    };
+public void restartDelayTimer() {
+    handler.removeCallbacks(delayRunnable);
+    handler.postDelayed(delayRunnable,3000);
+}
+
 }

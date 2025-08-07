@@ -6,33 +6,37 @@ import static edu.luc.etl.cs313.android.simplestopwatch.common.Constants.*;
  * An implementation of the stopwatch data model.
  */
 public class DefaultTimeModel implements TimeModel {
-
-    private int runningTime = 0;
-
-    private int lapTime = -1;
-
+    public void setRuntime(int time) {
+    Runtime = time = Math.min(time,99);
+    }
+    private int Runtime = 0;
     @Override
     public void resetRuntime() {
-        runningTime = 0;
+        Runtime = 0;
+    }
+
+
+
+    @Override
+   public void setTime(final int time) {
+        this.Runtime = Math.min(time,99);
     }
 
     @Override
-    public void incRuntime() {
-        runningTime = (runningTime + SEC_PER_TICK) % SEC_PER_HOUR;
+    public void decTime() {
+        if (Runtime > 0) {
+            Runtime--;
+        }
     }
 
     @Override
-    public int getRuntime() {
-        return runningTime;
+    public int getTime() {
+        return Runtime;
+    }
+    public void incRuntime(){
+            if(Runtime < 99) {
+                Runtime++;
+            }
     }
 
-    @Override
-    public void setLaptime() {
-        lapTime = runningTime;
-    }
-
-    @Override
-    public int getLaptime() {
-        return lapTime;
-    }
 }

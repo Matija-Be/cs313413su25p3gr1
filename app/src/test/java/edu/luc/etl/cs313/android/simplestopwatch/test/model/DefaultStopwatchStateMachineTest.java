@@ -10,14 +10,14 @@ import edu.luc.etl.cs313.android.simplestopwatch.model.state.DefaultStopwatchSta
  * implementation.
  *
  * @author laufer
- * @see http://xunitpatterns.com/Testcase%20Superclass.html
+ * perclass.html
  */
 public class DefaultStopwatchStateMachineTest extends AbstractStopwatchStateMachineTest {
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        setModel(new DefaultStopwatchStateMachine(getDependency(), getDependency()));
+        setModel(new DefaultStopwatchStateMachine(getDependency(), getDependency());
     }
 
     @After

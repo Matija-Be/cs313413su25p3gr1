@@ -1,5 +1,8 @@
 package edu.luc.etl.cs313.android.simplestopwatch.model.clock;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -12,10 +15,19 @@ public class DefaultClockModel implements ClockModel {
 
     // TODO make accurate by keeping track of partial seconds when canceled etc.
 
-    private Timer timer;
-
     private TickListener listener;
 
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    private final Runnable tickRunnable = new Runnable(){
+        @Override
+        public void run() {
+            if (listener != null) {
+                listener.onTick();
+                handler.postDelayed(this, 1000);
+            }
+
+        }
+    };
     @Override
     public void setTickListener(final TickListener listener) {
         this.listener = listener;
@@ -23,19 +35,15 @@ public class DefaultClockModel implements ClockModel {
 
     @Override
     public void start() {
-        timer = new Timer();
+        handler.removeCallbacks(tickRunnable);
+        handler.post(tickRunnable);
+        }
 
         // The clock model runs onTick every 1000 milliseconds
-        timer.schedule(new TimerTask() {
-            @Override public void run() {
-                // fire event
-                listener.onTick();
-            }
-        }, /*initial delay*/ 1000, /*periodic delay*/ 1000);
-    }
 
-    @Override
-    public void stop() {
-        timer.cancel();
+
+        @Override
+        public void stop () {
+        handler.removeCallbacks(tickRunnable);
     }
-}
+    }

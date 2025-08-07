@@ -22,7 +22,6 @@ import edu.luc.etl.cs313.android.simplestopwatch.model.time.TimeModel;
  * object for all dependencies of the state machine model.
  *
  * @author laufer
- * @see http://xunitpatterns.com/Testcase%20Superclass.html
  */
 public abstract class AbstractStopwatchStateMachineTest {
 
@@ -41,7 +40,7 @@ public abstract class AbstractStopwatchStateMachineTest {
     }
 
     /**
-     * Setter for dependency injection. Usually invoked by concrete testcase
+     * Setter for dependency injection. Usually invoked by a concrete testcase
      * subclass.
      *
      * @param model
@@ -137,43 +136,36 @@ public abstract class AbstractStopwatchStateMachineTest {
     }
 }
 
-/**
- * Manually implemented mock object that unifies the three dependencies of the
- * stopwatch state machine model. The three dependencies correspond to the three
- * interfaces this mock object implements.
- *
- * @author laufer
- */
 class UnifiedMockDependency implements TimeModel, ClockModel, StopwatchModelListener {
 
     private int timeValue = -1, stateId = -1;
-
-    private int runningTime = 0, lapTime = -1;
-
+    private int runtime = 0;
     private boolean started = false;
 
-    public int getTime() {
-        return timeValue;
-    }
-
-    public int getState() {
-        return stateId;
-    }
-
-    public boolean isStarted() {
-        return started;
+    // === TimeModel ===
+    @Override
+    public void resetRuntime() {
+        runtime = 0;
     }
 
     @Override
-    public void onTimeUpdate(final int timeValue) {
-        this.timeValue = timeValue;
+    public void decRuntime() {
+        if (runtime > 0) {
+            runtime--;
+        }
     }
 
     @Override
-    public void onStateUpdate(final int stateId) {
-        this.stateId = stateId;
+    public void setRuntime(int time) {
+        this.runtime = Math.min(time, 99);
     }
 
+    @Override
+    public int getRuntime() {
+        return runtime;
+    }
+
+    // === ClockModel ===
     @Override
     public void setTickListener(TickListener listener) {
         throw new UnsupportedOperationException();
@@ -189,28 +181,26 @@ class UnifiedMockDependency implements TimeModel, ClockModel, StopwatchModelList
         started = false;
     }
 
+    public boolean isStarted() {
+        return started;
+    }
+
+    // === StopwatchModelListener ===
     @Override
-    public void resetRuntime() {
-        runningTime = 0;
+    public void onTimeUpdate(final int timeValue) {
+        this.timeValue = timeValue;
     }
 
     @Override
-    public void incRuntime() {
-        runningTime++;
+    public void onStateUpdate(final int stateId) {
+        this.stateId = stateId;
     }
 
-    @Override
-    public int getRuntime() {
-        return runningTime;
+    public int getState() {
+        return stateId;
     }
 
-    @Override
-    public void setLaptime() {
-        lapTime = runningTime;
-    }
-
-    @Override
-    public int getLaptime() {
-        return lapTime;
+    public int getTime() {
+        return timeValue;
     }
 }

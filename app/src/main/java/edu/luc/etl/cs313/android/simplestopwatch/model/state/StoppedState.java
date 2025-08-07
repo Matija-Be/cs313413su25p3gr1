@@ -12,8 +12,10 @@ class StoppedState implements StopwatchState {
 
     @Override
     public void onStartStop() {
-        sm.actionStart();
-        sm.toRunningState();
+
+        sm.actionInc();               // <-- this adds 1 second
+        sm.updateUIRuntime();
+        sm.restartDelayTimer();
     }
 
     @Override
@@ -24,7 +26,7 @@ class StoppedState implements StopwatchState {
 
     @Override
     public void onTick() {
-        throw new UnsupportedOperationException("onTick");
+    //do nothing
     }
 
     @Override

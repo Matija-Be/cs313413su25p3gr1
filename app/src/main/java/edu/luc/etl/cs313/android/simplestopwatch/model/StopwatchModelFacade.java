@@ -23,4 +23,6 @@ public interface StopwatchModelFacade extends Startable, StopwatchUIListener, St
 
     //called when the activity is destroyed
     void onDestroy();
+    void onAddTime();
+
 }
