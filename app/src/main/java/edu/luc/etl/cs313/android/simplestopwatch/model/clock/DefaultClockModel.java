@@ -46,4 +46,5 @@ public class DefaultClockModel implements ClockModel {
         public void stop () {
         handler.removeCallbacks(tickRunnable);
     }
+
     }

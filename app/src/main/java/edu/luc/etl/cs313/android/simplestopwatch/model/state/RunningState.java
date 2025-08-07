@@ -20,6 +20,10 @@ class RunningState implements StopwatchState {
 
     @Override
     public void onLapReset() {
+        sm.actionStop();
+        sm.actionStopNotification();
+        sm.actionReset();
+        sm.toStoppedState();
     }
 
     @Override

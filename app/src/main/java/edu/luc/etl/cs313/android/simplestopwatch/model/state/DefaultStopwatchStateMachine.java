@@ -66,26 +66,31 @@ public class DefaultStopwatchStateMachine implements StopwatchStateMachine {
 
     @Override
     public void actionPlayNotification() {
-        try {
-            final Uri defaultRingtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-            MediaPlayer mp = new MediaPlayer();
-            mp.setAudioAttributes(new AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_NOTIFICATION)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .build());
-            mp.setDataSource(context, defaultRingtoneUri);
-            mp.setOnCompletionListener(MediaPlayer::release); // auto-release
-            mp.prepare();
-            mp.start();
-        } catch (IOException e) {
-            throw new RuntimeException("Error playing notification", e);
+        //plays the sound
+        if (alarmPlayer == null) {
+            try {
+                final Uri defaultRingtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                alarmPlayer = new MediaPlayer(); // create and assign to alarmPlayer directly
+                alarmPlayer.setAudioAttributes(new AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .build());
+                alarmPlayer.setDataSource(context, defaultRingtoneUri);
+                alarmPlayer.setLooping(true); // keep looping until manually stopped
+                alarmPlayer.prepare();
+                alarmPlayer.start();
+            } catch (IOException e) {
+                throw new RuntimeException("Error playing notification", e);
+            }
         }
     }
 
     @Override
     public void actionStopNotification() {
+        /// stops the sound
     if(alarmPlayer != null) {
-        alarmPlayer.release();
+        alarmPlayer.stop();
+            alarmPlayer.release();
             alarmPlayer = null;
         }
     }
@@ -106,6 +111,7 @@ public class DefaultStopwatchStateMachine implements StopwatchStateMachine {
 
     // actions
     public void actionDec() {
+        //counts down the time
         timeModel.decTime();
         actionUpdateView();
     }
@@ -125,7 +131,7 @@ private final Handler handler = new Handler(Looper.getMainLooper());
     private final Runnable delayRunnable = new Runnable() {
         public void run() {
             if (getTime() >0) {
-                actionPlayNotification();
+
                 toRunningState();
                 actionStart();
             }

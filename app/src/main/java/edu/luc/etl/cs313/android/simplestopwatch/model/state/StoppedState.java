@@ -20,8 +20,10 @@ class StoppedState implements StopwatchState {
 
     @Override
     public void onLapReset() {
-        sm.actionReset();
-        sm.toStoppedState();
+      sm.actionStop();//stop count
+      sm.actionStopNotification();//stop sound
+        sm.actionReset();//reset time
+        sm.toStoppedState();//stay stopped
     }
 
     @Override
