@@ -128,6 +128,10 @@ public class DefaultStopwatchStateMachine implements StopwatchStateMachine {
     @Override public void actionInc()        { timeModel.setTime(timeModel.getTime() + 1);}
     @Override public void actionUpdateView() { state.updateView(); }
 private final Handler handler = new Handler(Looper.getMainLooper());
+
+    /**
+     * This will make sure that when the time is greater then zero it will start the time.
+     */
     private final Runnable delayRunnable = new Runnable() {
         public void run() {
             if (getTime() >0) {
@@ -137,7 +141,12 @@ private final Handler handler = new Handler(Looper.getMainLooper());
             }
         }
     };
-public void restartDelayTimer() {
+
+    /**
+     * This handles the delay before it runs.
+     * It will wait 3 milliseconds and then it will run.
+     */
+    public void restartDelayTimer() {
     handler.removeCallbacks(delayRunnable);
     handler.postDelayed(delayRunnable,3000);
 }

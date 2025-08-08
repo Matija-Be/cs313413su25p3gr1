@@ -57,6 +57,11 @@ public class StopwatchAdapter extends Activity implements StopwatchModelListener
 
     // TODO remaining lifecycle methods
 
+
+    /**
+     * These are our remaining lifecycle methods.
+     * The remaining methods we added were onResume, onPause, onStop, and on Destroy.
+     */
     @Override
     protected void onResume() {
         super.onResume();

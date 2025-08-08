@@ -33,6 +33,9 @@ public class DefaultClockModel implements ClockModel {
         this.listener = listener;
     }
 
+    /**
+     * this handles the start and stop and how it moves every 1000 milliseconds.
+     */
     @Override
     public void start() {
         handler.removeCallbacks(tickRunnable);

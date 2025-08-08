@@ -11,31 +11,36 @@ class RunningState implements StopwatchState {
 
     private final StopwatchSMStateView sm;
 
+    /*
+    This is our methods for when we are working with start and stoping.
+    Also lap and reset
+    As well as when it reaches zero with onTick.
+     */
     @Override
     public void onStartStop() {
-        sm.actionStop();
-        sm.actionReset();
-        sm.toStoppedState();
+        sm.actionStop();//Stops
+        sm.actionReset();//Resets
+        sm.toStoppedState();//The state in which it stops
     }
 
     @Override
     public void onLapReset() {
-        sm.actionStop();
-        sm.actionStopNotification();
-        sm.actionReset();
-        sm.toStoppedState();
+        sm.actionStop();//Stop
+        sm.actionStopNotification();//Notification that it stopped.
+        sm.actionReset();//Reset
+        sm.toStoppedState();//State
     }
 
     @Override
     public void onTick() {
         sm.actionDec();
-        if(sm.getTime() == 0){
-            sm.actionStop();
-            sm.actionPlayNotification();
-            sm.toStoppedState();
+        if(sm.getTime() == 0){//Check when timer reaches zero.
+            sm.actionStop();//Stops
+            sm.actionPlayNotification();//Timer reaches zero
+            sm.toStoppedState();//Stop State
         }
         else{
-        sm.toRunningState();}
+        sm.toRunningState();}//it runs/
 
     }
 
